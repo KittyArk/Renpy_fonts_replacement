@@ -1,21 +1,8 @@
-
 # 运行 extract_fonts.py 以获取游戏字体列表
 define game_fonts = [
     # 在此列出需要替换的游戏内字体文件
     # 例如: "fonts/old_font.ttf",
     "DejaVuSans.ttf",
-    "Inter-Regular.ttf",
-    "Manrope-Bold.ttf",
-    "Manrope-Regular.ttf",
-    "fonts/Exo-Italic.otf",
-    "fonts/Exo-Light.otf",
-    "fonts/Exo-LightItalic.otf",
-    "fonts/Exo-Regular.otf",
-    "fonts/IBMPlexSans-Italic.ttf",
-    "fonts/IBMPlexSans-Light.otf",
-    "fonts/IBMPlexSans-LightItalic.otf",
-    "fonts/IBMPlexSans-Regular.otf",
-    "fonts/Manrope-Bold.ttf",
     ]
 
 # 手动设置替换的字体，按顺序排列
@@ -25,26 +12,12 @@ define replacement_fonts = [
     # 动态生成替换字体列表
     # replacement_fonts = ["tl/chinese/fonts/LXGWWenKaiMonoGB-Regular.ttf"] * len(game_fonts)
     "tl/chinese/fonts/LXGWWenKaiMonoGB-Regular.ttf",
-    "tl/chinese/fonts/LXGWWenKaiMonoGB-Regular.ttf",
-    "tl/chinese/fonts/LXGWWenKaiMonoGB-Regular.ttf",
-    "tl/chinese/fonts/LXGWWenKaiMonoGB-Regular.ttf",
-    "tl/chinese/fonts/LXGWWenKaiMonoGB-Regular.ttf",
-    "tl/chinese/fonts/LXGWWenKaiMonoGB-Regular.ttf",
-    "tl/chinese/fonts/LXGWWenKaiMonoGB-Regular.ttf",
-    "tl/chinese/fonts/LXGWWenKaiMonoGB-Regular.ttf",
-    "tl/chinese/fonts/LXGWWenKaiMonoGB-Regular.ttf",
-    "tl/chinese/fonts/LXGWWenKaiMonoGB-Regular.ttf",
-    "tl/chinese/fonts/LXGWWenKaiMonoGB-Regular.ttf",
-    "tl/chinese/fonts/LXGWWenKaiMonoGB-Regular.ttf",
-    "tl/chinese/fonts/LXGWWenKaiMonoGB-Regular.ttf",
 ]
 
     
 # 字体替换函数
 init python:
     def apply_font_replacement():
-        # 动态生成替换字体列表
-        replacement_fonts = ["tl/chinese/fonts/LXGWWenKaiMonoGB-Regular.ttf"] * len(game_fonts)
 
         # 检查字体列表长度
         if len(game_fonts) != len(replacement_fonts):
