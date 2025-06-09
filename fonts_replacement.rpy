@@ -10,8 +10,8 @@ define replacement_fonts = [
     # 在此列出新的字体文件
     # 例如: "fonts/new_font.ttf",
     # 动态生成替换字体列表
-    # replacement_fonts = ["tl/chinese/fonts/LXGWWenKaiMonoGB-Regular.ttf"] * len(game_fonts)
-    "tl/chinese/fonts/LXGWWenKaiMonoGB-Regular.ttf",
+    # replacement_fonts = ["tl/xxx/fonts/xxx.ttf"] * len(game_fonts)
+    "tl/xxx/fonts/xxx.ttf",
 ]
 
     
