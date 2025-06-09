@@ -22,13 +22,15 @@ def extract_fonts_from_rpy(source_dir, output_file):
                         content = f.read()
                         # 查找所有匹配的字体路径
                         matches = re.findall(pattern, content)
-                        # 提取非空匹配（每个匹配是一个元组，可能包含空字符串）
+                        # 提取非空匹配并去除 font= 前缀
                         for match in matches:
                             # 匹配结果是 (double_quote_match, single_quote_match, brace_match)
                             # 取第一个非空字符串
                             font = next((m for m in match if m), None)
                             if font:
-                                fonts.add(font)
+                                # 去除 font= 前缀
+                                clean_font = re.sub(r'^font=', '', font)
+                                fonts.add(clean_font)
                 except Exception as e:
                     print(f"处理文件 {file_path} 时出错: {e}")
     
