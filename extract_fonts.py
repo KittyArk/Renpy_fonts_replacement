@@ -6,8 +6,8 @@ def extract_fonts_from_rpy(source_dir, output_file):
     # 存储唯一字体路径
     fonts = set()
     
-    # 正则表达式匹配双引号中的 .otf 或 .ttf 文件路径
-    pattern = r'"[^"]*\.(?:otf|ttf)"'
+    # 正则表达式匹配双引号、单引号或大括号中的 .otf 或 .ttf 文件路径
+    pattern = r'(?:"([^"]*\.(?:otf|ttf))"|\'([^\']*\.(?:otf|ttf))\')|(?:\{([^\}]*\.(?:otf|ttf))\})'
     
     # 遍历目录
     for root, dirs, files in os.walk(source_dir):
@@ -22,9 +22,13 @@ def extract_fonts_from_rpy(source_dir, output_file):
                         content = f.read()
                         # 查找所有匹配的字体路径
                         matches = re.findall(pattern, content)
-                        # 去除引号并添加到集合
+                        # 提取非空匹配（每个匹配是一个元组，可能包含空字符串）
                         for match in matches:
-                            fonts.add(match.strip('"'))
+                            # 匹配结果是 (double_quote_match, single_quote_match, brace_match)
+                            # 取第一个非空字符串
+                            font = next((m for m in match if m), None)
+                            if font:
+                                fonts.add(font)
                 except Exception as e:
                     print(f"处理文件 {file_path} 时出错: {e}")
     
