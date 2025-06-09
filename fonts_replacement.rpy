@@ -36,3 +36,5 @@ init python:
 
 translate chinese python:
     apply_font_replacement()
+translate None python:
+    config.font_replacement_map = {}
