@@ -11,6 +11,8 @@ define replacement_fonts = [
     # 例如: "fonts/new_font.ttf",
     # 动态生成替换字体列表
     # replacement_fonts = ["tl/xxx/fonts/xxx.ttf"] * len(game_fonts)
+    # replacement_fonts = (["tl/xxx/fonts/xxx.ttf"] * x ) + ["tl/xxx/fonts/xxx.ttf"] + .....
+
     "tl/xxx/fonts/xxx.ttf",
 ]
 
