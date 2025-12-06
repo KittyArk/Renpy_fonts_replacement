@@ -36,7 +36,7 @@ init python:
             print(f"字体替换: {old[0]} -> {new[0]}")
 
 
-translate chinese python:
+translate Chinese python:
     apply_font_replacement()
 translate None python:
     config.font_replacement_map = {}
