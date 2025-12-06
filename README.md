@@ -1,6 +1,8 @@
 # Renpy_fonts_replacement
 Renpy uses config.font_replacement_map to quickly replace fonts.
 
+利用Renpy config.font_replacement_map进行快速字体替换
+
 运行extract_fonts.py以提取游戏中所有使用的字体
 
 运行list_fonts.py以提取文件夹中所有字体文件
