@@ -29,9 +29,9 @@ init python:
         config.font_replacement_map = {}
         for old_font, new_font in zip(game_fonts, replacement_fonts):
             config.font_replacement_map[old_font, False, False] = (new_font, False, False)
-
-        # 调试：打印替换映射到 Ren'Py 控制台
-        print("Font replacement map:", config.font_replacement_map)
+            # 调试：打印替换映射到 Ren'Py 控制台
+            print("Font replacement map:", config.font_replacement_map)
+        # 调试：打印简易替换映射到 Ren'Py 控制台
         for old, new in config.font_replacement_map.items():
             print(f"字体替换: {old[0]} -> {new[0]}")
 
@@ -40,3 +40,4 @@ translate Chinese python:
     apply_font_replacement()
 translate None python:
     config.font_replacement_map = {}
+
