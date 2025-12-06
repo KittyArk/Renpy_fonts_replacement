@@ -8,4 +8,5 @@ Renpy uses config.font_replacement_map to quickly replace fonts.
 手动修改fonts_replacement.rpy中的被替换与替换字体
 
 fonts_replacement all-auto.rpy将映射所有字体类型
+
 fonts_replacement.rpy仅映射配置过的字体类型，可手动指定粗体斜体
