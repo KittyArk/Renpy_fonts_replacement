@@ -121,27 +121,32 @@ def run_mode_hybrid(source_dir, output_file):
     rpy_fonts = scan_rpy_fonts(source_dir)
     physical_fonts = scan_directory_fonts(source_dir)
 
-    # 建立相对路径及小写路径映射用于不区分大小写匹配
+    # 建立不区分大小写的路径映射与纯文件名映射，适配 Ren'Py 自动寻找子目录字体的特性
     physical_fonts_lower = {f.lower(): f for f in physical_fonts}
+    physical_basenames_lower = {Path(f).name.lower(): f for f in physical_fonts}
 
     filtered_fonts = set()
     removed_count = 0
 
     for font in rpy_fonts:
-        # 统一规范化对比路径
         clean_font = font.lstrip('./').replace('\\', '/')
         font_path_abs = source_dir / clean_font
+        font_basename = Path(clean_font).name.lower()
 
-        # 检查逻辑：
-        # 1. 物理文件存在于磁盘
-        # 2. 匹配到扫描出来的相对字体路径
-        # 3. 属于 Ren'Py 自带内建字体（无需在项目文件夹中存在）
-        if (
+        # 校验逻辑：
+        # 1. 绝对路径存在于磁盘
+        # 2. 相对路径完全匹配（忽略大小写）
+        # 3. 后缀相对路径匹配（如 rpy 为 'Inter.ttf'，实体为 'gui/fonts/Inter.ttf'）
+        # 4. 纯文件名在扫描出的实体字体库中匹配（适配 Ren'Py 在子目录中自动寻址字体）
+        # 5. 属于 Ren'Py 默认内建字体
+        exists_in_dir = (
             font_path_abs.is_file()
-            or clean_font in physical_fonts
             or clean_font.lower() in physical_fonts_lower
-            or is_renpy_builtin(clean_font)
-        ):
+            or any(pf.endswith('/' + clean_font.lower()) for pf in physical_fonts_lower)
+            or font_basename in physical_basenames_lower
+        )
+
+        if exists_in_dir or is_renpy_builtin(clean_font):
             filtered_fonts.add(font)
         else:
             print(f"[混合模式] 移除不存在的字体: {font}")

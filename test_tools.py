@@ -49,21 +49,26 @@ class TestFontTool(unittest.TestCase):
     def test_mode_hybrid(self):
         game_dir = Path(self.test_dir) / "game"
         game_dir.mkdir()
-        fonts_subdir = game_dir / "fonts"
-        fonts_subdir.mkdir()
+        fonts_subdir = game_dir / "gui" / "fonts"
+        fonts_subdir.mkdir(parents=True)
 
-        # Existing physical font
-        (fonts_subdir / "existing.ttf").touch()
+        # Physical font in subfolder game/gui/fonts/Inter-Regular.ttf
+        (fonts_subdir / "Inter-Regular.ttf").touch()
+        # Physical font in game/fonts/existing.ttf
+        (game_dir / "fonts").mkdir()
+        (game_dir / "fonts" / "existing.ttf").touch()
 
         # RPY file referencing:
-        # 1) Existing physical font: "fonts/existing.ttf"
-        # 2) Non-existent font: "fonts/missing.ttf"
-        # 3) Ren'Py built-in font: "DejaVuSans.ttf" (not physically present, but should NOT be removed)
+        # 1) "Inter-Regular.ttf" (referenced without full path, but exists in gui/fonts/Inter-Regular.ttf)
+        # 2) "fonts/existing.ttf" (exact relative path)
+        # 3) "fonts/missing.ttf" (truly non-existent font)
+        # 4) "DejaVuSans.ttf" (Ren'Py built-in font)
         gui_rpy = game_dir / "gui.rpy"
         gui_rpy.write_text(
-            'define gui.font1 = "fonts/existing.ttf"\n'
-            'define gui.font2 = "fonts/missing.ttf"\n'
-            'define gui.font3 = "DejaVuSans.ttf"\n',
+            'define gui.font1 = "Inter-Regular.ttf"\n'
+            'define gui.font2 = "fonts/existing.ttf"\n'
+            'define gui.font3 = "fonts/missing.ttf"\n'
+            'define gui.font4 = "DejaVuSans.ttf"\n',
             encoding="utf-8"
         )
 
@@ -71,6 +76,7 @@ class TestFontTool(unittest.TestCase):
         run_mode_hybrid(game_dir, output_file)
 
         content = output_file.read_text(encoding="utf-8")
+        self.assertIn('"Inter-Regular.ttf"', content)
         self.assertIn('"fonts/existing.ttf"', content)
         self.assertIn('"DejaVuSans.ttf"', content)
         self.assertNotIn('"fonts/missing.ttf"', content)
