@@ -39,8 +39,7 @@ init python:
         for old_font, new_font in zip(game_fonts, replacement_fonts):
             for bold, italic in style_combinations:
                 config.font_replacement_map[old_font, bold, italic] = (new_font, bold, italic)
-                # 调试：打印替换映射到 Ren'Py 控制台
-                #print("Font replacement map:", config.font_replacement_map)
+
         # 调试：打印简易替换映射到 Ren'Py 控制台
         for old, new in config.font_replacement_map.items():
             print(f"字体替换: {old[0]} -> {new[0]}")
