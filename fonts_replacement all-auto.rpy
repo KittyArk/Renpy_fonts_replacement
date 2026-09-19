@@ -1,51 +1,52 @@
-# 运行 extract_fonts.py 以获取游戏字体列表
+# 1. 运行 extract_fonts.py 以获取原游戏字体列表
 define game_fonts = [
-    # 在此列出需要替换的游戏内字体文件
+    # 在此列出需要替换的原游戏字体文件路径
     # 例如: "fonts/old_font.ttf",
     "xxx.ttf",
     "fonts/xxx.ttf",
 ]
 
-# 手动设置替换的字体，按顺序排列
+# 2. 设置替换字体，按顺序对应 game_fonts
 define replacement_fonts = [
-    # 在此列出新的字体文件
-    # 例如: "fonts/new_font.ttf",
-    # 动态生成替换字体列表
-    # replacement_fonts = ["tl/xxx/fonts/xxx.ttf"] * len(game_fonts)
-    # replacement_fonts = (["tl/xxx/fonts/xxx.ttf"] * x ) + ["tl/xxx/fonts/xxx.ttf"] + .....
+    # 在此列出替换的新字体文件路径
+    # 例如: "tl/Chinese/fonts/new_font.ttf",
     "tl/Chinese/fonts/xxx.ttf",
     "C:/Windows/Fonts/xxx.ttf",
-    ]
+]
 
-    
-# 字体替换函数
+# 字体替换逻辑
 init python:
     def apply_font_replacement():
-
-        # 检查字体列表长度
+        # 检查字体列表长度一致性
         if len(game_fonts) != len(replacement_fonts):
-            raise Exception(f"game_fonts length: {len(game_fonts)}, replacement_fonts length: {len(replacement_fonts)}")
+            raise Exception(f"[Font Replacement Error] game_fonts length ({len(game_fonts)}) != replacement_fonts length ({len(replacement_fonts)})")
 
-        # 创建字体替换映射
+        # 重置字体替换映射
         config.font_replacement_map = {}
+
         # 所有粗体和斜体的组合
         style_combinations = [
-                (False, False),
-                (True, False),
-                (False, True),
-                (True, True),
+            (False, False), # Regular
+            (True, False),  # Bold
+            (False, True),  # Italic
+            (True, True),   # Bold Italic
         ]
-        #把上面的排列组合丢进config.font_replacement_map替换
+
+        # 为每个组合统一映射到 replacement_fonts
         for old_font, new_font in zip(game_fonts, replacement_fonts):
             for bold, italic in style_combinations:
                 config.font_replacement_map[old_font, bold, italic] = (new_font, bold, italic)
 
-        # 调试：打印简易替换映射到 Ren'Py 控制台
-        for old, new in config.font_replacement_map.items():
-            print(f"字体替换: {old[0]} -> {new[0]}")
+        # 调试输出替换信息
+        print("--- All-Auto Font Replacement Applied ---")
+        for old_key, new_val in config.font_replacement_map.items():
+            print(f"字体替换: {old_key[0]} (b={old_key[1]}, i={old_key[2]}) -> {new_val[0]}")
 
-#仅在特定语言进行替换
+# 仅在切换至目标语言（如 Chinese / simplified_chinese）时应用替换
+# 请根据项目实际语言名称修改 "Chinese"
 translate Chinese python:
     apply_font_replacement()
+
+# 切换回默认语言（None）时清空替换映射
 translate None python:
     config.font_replacement_map = {}

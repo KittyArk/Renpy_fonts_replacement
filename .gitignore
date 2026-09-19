@@ -1,0 +1,4 @@
+__pycache__/
+*.pyc
+fonts_output.rpy
+font_list.txt
