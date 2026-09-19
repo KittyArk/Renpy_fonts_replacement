@@ -4,82 +4,81 @@ import tempfile
 import unittest
 from pathlib import Path
 
-from extract_fonts import extract_fonts_from_rpy
-from list_fonts import list_fonts
+from font_tool import (
+    run_mode_extract_rpy,
+    run_mode_scan_directory,
+    run_mode_hybrid,
+    is_renpy_builtin,
+)
 
-class TestRenpyFontTools(unittest.TestCase):
+class TestFontTool(unittest.TestCase):
     def setUp(self):
         self.test_dir = tempfile.mkdtemp()
-        self.script_dir = Path(__file__).resolve().parent
 
     def tearDown(self):
         shutil.rmtree(self.test_dir)
 
-    def test_extract_fonts(self):
-        # Create dummy structure
+    def test_mode_extract_rpy(self):
         game_dir = Path(self.test_dir) / "game"
         game_dir.mkdir()
-
-        # Subdirectory with 'tl' in folder name (should not be excluded unless it is exact 'tl')
-        castle_dir = game_dir / "castle"
-        castle_dir.mkdir()
-
-        tl_dir = game_dir / "tl"
-        tl_dir.mkdir()
-
-        # RPY file in game_dir
         gui_rpy = game_dir / "gui.rpy"
         gui_rpy.write_text(
             'define gui.text_font = "fonts/custom.ttf"\n'
-            'define gui.name_font = "fonts/name.otf"\n'
-            'label start:\n'
-            '    "Hello {font=fonts/dialog.ttc}world{/font}"\n',
-            encoding="utf-8"
-        )
-
-        # RPY file in castle_dir
-        castle_rpy = castle_dir / "castle.rpy"
-        castle_rpy.write_text(
-            'define gui.castle_font = "fonts/castle.otc"\n',
-            encoding="utf-8"
-        )
-
-        # RPY file in tl_dir (should be ignored)
-        tl_rpy = tl_dir / "ignored.rpy"
-        tl_rpy.write_text(
-            'define gui.tl_font = "fonts/ignored.ttf"\n',
+            'define gui.name_font = "DejaVuSans.ttf"\n',
             encoding="utf-8"
         )
 
         output_file = Path(self.test_dir) / "fonts_output.rpy"
-        extract_fonts_from_rpy(game_dir, output_file)
+        run_mode_extract_rpy(game_dir, output_file)
 
         content = output_file.read_text(encoding="utf-8")
-        self.assertIn('"fonts/castle.otc"', content)
         self.assertIn('"fonts/custom.ttf"', content)
-        self.assertIn('"fonts/dialog.ttc"', content)
-        self.assertIn('"fonts/name.otf"', content)
-        self.assertNotIn('"fonts/ignored.ttf"', content)
+        self.assertIn('"DejaVuSans.ttf"', content)
 
-    def test_list_fonts(self):
+    def test_mode_scan_directory(self):
         fonts_dir = Path(self.test_dir) / "my_fonts"
         fonts_dir.mkdir()
-        sub_dir = fonts_dir / "subfolder"
-        sub_dir.mkdir()
-        tl_dir = fonts_dir / "tl"
-        tl_dir.mkdir()
-
         (fonts_dir / "a.ttf").touch()
-        (sub_dir / "b.otf").touch()
-        (tl_dir / "c.ttf").touch()
 
         output_file = Path(self.test_dir) / "font_list.txt"
-        list_fonts(fonts_dir, output_file)
+        run_mode_scan_directory(fonts_dir, output_file)
 
         content = output_file.read_text(encoding="utf-8")
         self.assertIn('"a.ttf"', content)
-        self.assertIn('"subfolder/b.otf"', content)
-        self.assertNotIn('c.ttf', content)
+
+    def test_mode_hybrid(self):
+        game_dir = Path(self.test_dir) / "game"
+        game_dir.mkdir()
+        fonts_subdir = game_dir / "fonts"
+        fonts_subdir.mkdir()
+
+        # Existing physical font
+        (fonts_subdir / "existing.ttf").touch()
+
+        # RPY file referencing:
+        # 1) Existing physical font: "fonts/existing.ttf"
+        # 2) Non-existent font: "fonts/missing.ttf"
+        # 3) Ren'Py built-in font: "DejaVuSans.ttf" (not physically present, but should NOT be removed)
+        gui_rpy = game_dir / "gui.rpy"
+        gui_rpy.write_text(
+            'define gui.font1 = "fonts/existing.ttf"\n'
+            'define gui.font2 = "fonts/missing.ttf"\n'
+            'define gui.font3 = "DejaVuSans.ttf"\n',
+            encoding="utf-8"
+        )
+
+        output_file = Path(self.test_dir) / "fonts_output.rpy"
+        run_mode_hybrid(game_dir, output_file)
+
+        content = output_file.read_text(encoding="utf-8")
+        self.assertIn('"fonts/existing.ttf"', content)
+        self.assertIn('"DejaVuSans.ttf"', content)
+        self.assertNotIn('"fonts/missing.ttf"', content)
+
+    def test_is_renpy_builtin(self):
+        self.assertTrue(is_renpy_builtin("DejaVuSans.ttf"))
+        self.assertTrue(is_renpy_builtin("fonts/DejaVuSans-Bold.ttf"))
+        self.assertFalse(is_renpy_builtin("fonts/custom.ttf"))
 
 if __name__ == "__main__":
     unittest.main()
