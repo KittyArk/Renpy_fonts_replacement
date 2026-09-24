@@ -29,7 +29,7 @@ define replacement_bold_fonts = [
 # 如果对应位置填 None，Ren'Py 会尝试算法倾斜或使用常规字体
 define replacement_italic_fonts = [
     "tl/xxx/fonts/xxx_italic.ttf", # 对应第一个字体的斜体
-    # None, 
+    # None,
 ]
 
 # 4. 粗斜体替换列表（可选）
@@ -42,7 +42,7 @@ define replacement_bold_italic_fonts = [
 # 字体替换函数
 init python:
     def apply_font_replacement():
-        
+
         # 检查基础字体列表长度一致性
         if len(game_fonts) != len(replacement_fonts):
             raise Exception(f"Error: game_fonts length ({len(game_fonts)}) != replacement_fonts length ({len(replacement_fonts)})")
@@ -55,7 +55,7 @@ init python:
         # 检查粗斜体字体列表长度一致性
         if len(game_fonts) != len(replacement_bold_italic_fonts):
             raise Exception(f"Error: game_fonts length ({len(game_fonts)}) != replacement_bold_italic_fonts length ({len(replacement_bold_italic_fonts)})")
-            
+
         # 重置字体替换映射
         config.font_replacement_map = {}
 
@@ -88,7 +88,7 @@ init python:
                 new_bold_italic = replacement_bold_italic_fonts[index]
                 # 映射: (旧字体, 粗体True, 斜体True) -> (新粗斜体文件, 强制不加粗, 强制不倾斜)
                 config.font_replacement_map[old_font, True, True] = (new_bold_italic, False, False)
-                
+
         # 调试：打印简易替换映射到 Ren'Py 控制台
         print("--- Font Replacement Applied ---")
         for key, value in config.font_replacement_map.items():
@@ -97,7 +97,7 @@ init python:
             if key[1]: styles.append("Bold")
             if key[2]: styles.append("Italic")
             style_name = " + ".join(styles) if styles else "Regular"
-            
+
             print(f"Replace [{style_name}]: {key[0]} -> {value[0]}")
 
 #仅在特定语言进行替换

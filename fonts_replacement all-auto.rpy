@@ -17,7 +17,7 @@ define replacement_fonts = [
     "C:/Windows/Fonts/xxx.ttf",
     ]
 
-    
+
 # 字体替换函数
 init python:
     def apply_font_replacement():
