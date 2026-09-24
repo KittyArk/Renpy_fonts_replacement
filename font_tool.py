@@ -115,7 +115,7 @@ def run_mode_scan_directory(source_dir, output_file):
     print(f"在目录中找到 {len(fonts)} 个字体文件。")
     save_fonts_to_rpy(fonts, output_file, "由目录扫描模式生成的字体列表")
 
-def run_mode_hybrid(source_dir, output_file):
+def run_mode_hybrid(source_dir, output_file, log_file=None):
     """模式 3：混合模式 - 提取 rpy 字体并根据实际文件过滤不存在的字体（无视 renpy 自带字体）"""
     source_dir = Path(source_dir).resolve()
     rpy_fonts = scan_rpy_fonts(source_dir)
@@ -126,9 +126,10 @@ def run_mode_hybrid(source_dir, output_file):
     physical_basenames_lower = {Path(f).name.lower(): f for f in physical_fonts}
 
     filtered_fonts = set()
-    removed_count = 0
+    removed_fonts = []
 
-    for font in rpy_fonts:
+    print("\n--- [混合模式] 开始字体匹配校验 ---")
+    for font in sorted(rpy_fonts):
         clean_font = font.lstrip('./').replace('\\', '/')
         font_path_abs = source_dir / clean_font
         font_basename = Path(clean_font).name.lower()
@@ -149,10 +150,26 @@ def run_mode_hybrid(source_dir, output_file):
         if exists_in_dir or is_renpy_builtin(clean_font):
             filtered_fonts.add(font)
         else:
+            removed_fonts.append(font)
             print(f"[混合模式] 移除不存在的字体: {font}")
-            removed_count += 1
 
-    print(f"混合模式完成：从 {len(rpy_fonts)} 个引用中过滤掉 {removed_count} 个不存在的字体。")
+    print(f"\n混合模式完成：从 {len(rpy_fonts)} 个引用中过滤掉 {len(removed_fonts)} 个不存在的字体。")
+
+    # 导出日志文件
+    if log_file:
+        log_path = Path(log_file)
+        try:
+            with open(log_path, 'w', encoding='utf-8') as f:
+                f.write(f"# 混合模式自动移除的字体列表（共 {len(removed_fonts)} 个）\n")
+                if removed_fonts:
+                    for font in sorted(removed_fonts):
+                        f.write(f"{font}\n")
+                else:
+                    f.write("# 未发现需要移除的不存在字体。\n")
+            print(f"已被剔除的字体列表已写入日志文件: {log_path.name}")
+        except Exception as e:
+            print(f"写入日志文件 {log_path} 时出错: {e}")
+
     save_fonts_to_rpy(filtered_fonts, output_file, "由混合模式生成的字体列表（已过滤非内建且不存在的字体）")
 
 def main():
@@ -185,7 +202,8 @@ def main():
         run_mode_scan_directory(source_directory, output_file)
     elif mode_input == "3":
         output_file = script_dir / "fonts_output.rpy"
-        run_mode_hybrid(source_directory, output_file)
+        log_file = script_dir / "fonts_removed.txt"
+        run_mode_hybrid(source_directory, output_file, log_file)
     else:
         print("无效模式选择！")
 

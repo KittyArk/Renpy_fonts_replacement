@@ -58,11 +58,6 @@ class TestFontTool(unittest.TestCase):
         (game_dir / "fonts").mkdir()
         (game_dir / "fonts" / "existing.ttf").touch()
 
-        # RPY file referencing:
-        # 1) "Inter-Regular.ttf" (referenced without full path, but exists in gui/fonts/Inter-Regular.ttf)
-        # 2) "fonts/existing.ttf" (exact relative path)
-        # 3) "fonts/missing.ttf" (truly non-existent font)
-        # 4) "DejaVuSans.ttf" (Ren'Py built-in font)
         gui_rpy = game_dir / "gui.rpy"
         gui_rpy.write_text(
             'define gui.font1 = "Inter-Regular.ttf"\n'
@@ -73,13 +68,19 @@ class TestFontTool(unittest.TestCase):
         )
 
         output_file = Path(self.test_dir) / "fonts_output.rpy"
-        run_mode_hybrid(game_dir, output_file)
+        log_file = Path(self.test_dir) / "fonts_removed.txt"
+        run_mode_hybrid(game_dir, output_file, log_file)
 
         content = output_file.read_text(encoding="utf-8")
         self.assertIn('"Inter-Regular.ttf"', content)
         self.assertIn('"fonts/existing.ttf"', content)
         self.assertIn('"DejaVuSans.ttf"', content)
         self.assertNotIn('"fonts/missing.ttf"', content)
+
+        # Verify log output file
+        self.assertTrue(log_file.exists())
+        log_content = log_file.read_text(encoding="utf-8")
+        self.assertIn('fonts/missing.ttf', log_content)
 
     def test_is_renpy_builtin(self):
         self.assertTrue(is_renpy_builtin("DejaVuSans.ttf"))
